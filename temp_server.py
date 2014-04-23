@@ -25,8 +25,6 @@ def monitorClients():
                 data = socket.recv(1024)
                 client.parseIncomingJSON(data)
 
-client_monitor_thread = threading.Thread (target=monitorClients, args=() )
-client_monitor_thread.start()
 
 class ClientCollection():
     def __init__(self):
@@ -52,6 +50,9 @@ class Client():
             print("badly formatted json!")
             return
         print(json_temp["message"])
+
+client_monitor_thread = threading.Thread (target=monitorClients, args=() )
+client_monitor_thread.start()
 
 clientCollection = ClientCollection()
 
