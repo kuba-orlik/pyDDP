@@ -42,17 +42,22 @@ class Client():
     def __init__(self, socket, address):
         self.socket = socket
         self.address = address
-        print(connected_sockets)
     def parseIncomingJSON(self, string):
         string = str(string, encoding='UTF-8')
         print(string)
         try:
             json_temp = json.loads(string)
+            json_correct = true
         except ValueError:
             print("badly formatted json!")
-            return
-        verb_present = 'verb' in json_temp
-        print("verb_present:", verb_present)
+            json_correct = false
+        if json_correct:
+            verb_present = 'verb' in json_temp
+            print("verb_present:", verb_present)
+            attributes_present = 'attributes' in json_temp
+            if verb_present & attributes_present:
+                self.do(verb, attributes)
+            
     def respond(self, res_number, status, message):
             message = json.dumps({'res_number': res_number, 'status': status, 'message': message})
             self.socket.send(bytes(message, "UTF-8"))
