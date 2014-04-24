@@ -27,10 +27,24 @@ def monitorClients():
                 except ConnectionAbortedError:
                     connected_sockets.remove(socket)
                     print("client", client.id, "disconnected")
+                    client.unsubAll()
                     continue
                 client.parseIncomingJSON(data)
                 client.respond(200, "ok", "ok")
 
+
+class Publication():
+    def __init__(self, id):
+        self
+
+class Subscription():
+    def __init(self, client, publication):
+        self.client = client
+        self.publication = publication
+
+class SubscriptionCollection():
+    def __init__(self):
+        self.subscriptions = []
 
 class ClientCollection():
     def __init__(self):
@@ -77,6 +91,7 @@ client_monitor_thread = threading.Thread (target=monitorClients, args=() )
 client_monitor_thread.start()
 
 clientCollection = ClientCollection()
+subscriptioncollection = SubscriptionCollection()
 
 while 1:
     (new_clientSocket, address) =  serversocket.accept()
