@@ -22,28 +22,33 @@ def monitorClients():
             ready_to_read, ready_to_write, in_error = select.select(connected_sockets, [], [], 1)
             for socket in ready_to_read:
                 client = clientCollection.getBySocket(socket)
+                error = False
                 try:
                     data = socket.recv(1024)
                 except ConnectionAbortedError:
+                    error = True
+                if error or len(data)==0:
                     connected_sockets.remove(socket)
                     print("client", client.id, "disconnected")
                     client.unsubAll()
                     continue
                 client.parseIncomingJSON(data)
-                client.respond(200, "ok", "ok")
+                #client.respond(200, "ok", "ok")
 
 
 class Publication():
     def __init__(self, ID):
         self.id=ID
-        print(open('/pubs/test.pub'))
+        print(open('pubs/test.pub'))
         self.name="publication_name_placeholder"
+    def getContents(self):
+        return "sample publication content"
 
 class PublicationCollection():
     def __init__(self):
         self
     def getPublicationByName(self, name):
-        return name
+        return Publication("test")
 
 class Subscription():
     def __init__(self, client, publication):
@@ -108,9 +113,12 @@ class Client():
                 self.do(verb, attributes)
     def do(self, verb, attributes):
         if verb=="sub":
+            print("handling SUB request")
             pub = publicationCollection.getPublicationByName(attributes["pub_name"])
             sub = subscriptionCollection.new(self, pub)
             self.subscriptions.append(sub)
+            print(self.subscriptions)
+            self.respond(200, "ok", pub.getContents())
 
     def respond(self, res_number, status, message):
             message = json.dumps({'res_number': res_number, 'status': status, 'message': message})
