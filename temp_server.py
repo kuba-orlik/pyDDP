@@ -45,6 +45,8 @@ class Subscription():
 class SubscriptionCollection():
     def __init__(self):
         self.subscriptions = []
+    def remove(sub):
+        self.subscriptions.remove(sub)
 
 class ClientCollection():
     def __init__(self):
@@ -65,6 +67,7 @@ class Client():
         self.socket = socket
         self.address = address
         self.id = None
+        self.subscriptions = []
     def parseIncomingJSON(self, string):
         string = str(string, encoding='UTF-8')
         print(string)
@@ -86,12 +89,16 @@ class Client():
     def respond(self, res_number, status, message):
             message = json.dumps({'res_number': res_number, 'status': status, 'message': message})
             self.socket.send(bytes(message, "UTF-8"))
+    def unsubAll(self):
+        for sub in self.subscriptions:
+            self.subscriptions.remove(sub)
+            subscriptionCollection.remove(sub)
 
 client_monitor_thread = threading.Thread (target=monitorClients, args=() )
 client_monitor_thread.start()
 
 clientCollection = ClientCollection()
-subscriptioncollection = SubscriptionCollection()
+subscriptionCollection = SubscriptionCollection()
 
 while 1:
     (new_clientSocket, address) =  serversocket.accept()
