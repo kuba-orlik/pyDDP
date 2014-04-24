@@ -7,5 +7,25 @@ s.connect((HOST, PORT))
 text = '{"verb":"sub", "attributes":{"id":"dowolne_id","pub_name":"test"}}'
 s.send(bytes(text, 'UTF-8'))
 data = s.recv(1024)
-s.close()
 print('Received', repr(data))
+
+s.send(bytes(text, 'UTF-8'))
+data = s.recv(1024)
+print('Received', repr(data))
+
+s.send(bytes(text, 'UTF-8'))
+data = s.recv(1024)
+print('Received', repr(data))
+
+"""text = '{"verb":"new_pub", "attributes":{"id":"dowolne_id","pub_name":"test"}}'
+#s.send(bytes(text, 'UTF-8'))
+data = s.recv(1024)
+print('Received', repr(data))
+
+data = s.recv(1024)
+print('Received', repr(data))
+
+data = s.recv(1024)
+print('Received', repr(data))"""
+
+s.close()

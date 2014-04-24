@@ -29,7 +29,7 @@ def monitorClients():
                     error = True
                 if error or len(data)==0:
                     connected_sockets.remove(socket)
-                    print("client", client.id, "disconnected")
+                    print("client", client.IDL, "disconnected")
                     client.unsubAll()
                     continue
                 client.parseIncomingJSON(data)
@@ -39,25 +39,28 @@ def monitorClients():
 class PubNotFoundError(Exception):
     def __init__(self, value):
         self.value = value
+
     def __str__(self):
         return repr(self.value)
 
 class PubDamagedError(Exception):
     def __init__(self, value):
         self.value = value
+
     def __str__(self):
         return repr(self.value)
 
 class BadJSONSyntaxError(Exception):
     def __init__(self, value):
         self.value = value
+
     def __str__(self):
         return repr(self.value)
 
 class Publication():
     def __init__(self, ID):
         print("pub init")
-        self.id=ID
+        self.IDL=ID
         self.file = open('pubs/'+ID+'.pub')
         #self.content = json.gets(self.file.read())
         self.content = self.file.read()
@@ -68,12 +71,14 @@ class Publication():
             raise BadJSONSyntaxError(e.value)
         #print('parsed_content', self.parsed_content)
         self.name="publication_name_placeholder"
+
     def getContents(self):
         return self.content
 
 class PublicationCollection():
     def __init__(self):
         self
+
     def getPublicationByName(self, name):
         try:
             pub= Publication(name)
@@ -85,26 +90,30 @@ class PublicationCollection():
         return pub
 
 class Subscription():
-    def __init__(self, client, publication, ID):
+    def __init__(self, client, publication, IDL):
         self.client = client
         self.publication = publication
-        self.id=ID
+        self.IDL=IDL
 
 class SubscriptionCollection():
     def __init__(self):
         self.subscriptions = []
         self.subscriptionsByPub = {}
+
     def indexSubByPub(self, sub):
         if not sub.publication.name in self.subscriptionsByPub:
             self.subscriptionsByPub[sub.publication.name]=[]
         self.subscriptionsByPub[sub.publication.name].append(sub)
+
     def getSubsByPubName(self, pub_name):
         return self.subscriptionsByPub[pub_name]
-    def new(self, client, publication, id):
-        sub = Subscription(client, publication, id)
+
+    def new(self, client, publication, idL):
+        sub = Subscription(client, publication, idL)
         self.subscriptions.append(sub)
         self.subscriptionsByPub
         return sub
+
     def remove(self, sub):
         self.subscriptions.remove(sub)
 
@@ -112,11 +121,13 @@ class ClientCollection():
     def __init__(self):
         self.clients=[]
         self.total_clients=0
+
     def addClient(self, client):
         self.clients.append(client)
-        client.id=self.total_clients
+        client.IDL=self.total_clients
         self.total_clients+=1
         connected_sockets.append(client.socket)
+
     def getBySocket(self, socket):
         for client in self.clients:
             if client.socket==socket:
@@ -126,8 +137,9 @@ class Client():
     def __init__(self, socket, address):
         self.socket = socket
         self.address = address
-        self.id = None
+        self.IDL = None
         self.subscriptions = []
+
     def parseIncomingJSON(self, string):
         string = str(string, encoding='UTF-8')
         print(string)
@@ -148,26 +160,46 @@ class Client():
                 self.do(verb, attributes)
             else:
                 self.reportBadSyntax()
+
     def reportBadSyntax(self):
         self.respond(300, "error", "bad request syntax")
+
+    def hasSubID(self, IDL):
+        for sub in self.subscriptions:
+            print(sub.IDL, IDL)
+            if sub.IDL==IDL:
+                return True
+        return False
+<<<<<<< HEAD
+
+=======
+        
+>>>>>>> af16a538c36f379dffe6101fc88694e5301a91cf
     def do(self, verb, attributes):
+        print(verb)
         if verb=="sub":
             print("handling SUB request")
             if not "pub_name" in attributes or not "id" in attributes:
                 self.reportBadSyntax()
+            if self.hasSubID(attributes["id"]):
+                self.respond(422, "error", "you already have that id assigned to a publication. Unsub first")
             try:
                 pub = publicationCollection.getPublicationByName(attributes["pub_name"])
             except PubNotFoundError:
                 self.respond(404, "error", "publication not found")
                 return
-            sub = subscriptionCollection.new(self, pub, id)
+            sub = subscriptionCollection.new(self, pub, attributes["id"])
             self.subscriptions.append(sub)
             print(self.subscriptions)
             self.respond(200, "ok", pub.getContents())
+        else:
+            print("unknown verb")
+            self.respond(300, "error", "unknown verb")
 
     def respond(self, res_number, status, message):
             message = json.dumps({'res_number': res_number, 'status': status, 'message': message})
             self.socket.send(bytes(message, "UTF-8"))
+
     def unsubAll(self):
         for sub in self.subscriptions:
             self.subscriptions.remove(sub)
