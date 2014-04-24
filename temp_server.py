@@ -36,24 +36,59 @@ def monitorClients():
                 #client.respond(200, "ok", "ok")
 
 
+class PubNotFoundError(Exception):
+    def __init__(self, value):
+        self.value = value
+    def __str__(self):
+        return repr(self.value)
+
+class PubDamagedError(Exception):
+    def __init__(self, value):
+        self.value = value
+    def __str__(self):
+        return repr(self.value)
+
+class BadJSONSyntaxError(Exception):
+    def __init__(self, value):
+        self.value = value
+    def __str__(self):
+        return repr(self.value)
+
 class Publication():
     def __init__(self, ID):
+        print("pub init")
         self.id=ID
-        print(open('pubs/test.pub'))
+        self.file = open('pubs/'+ID+'.pub')
+        #self.content = json.gets(self.file.read())
+        self.content = self.file.read()
+        print(self.content)
+        try:
+            self.parsed_content = json.loads(self.content)
+        except Exception as e:
+            raise BadJSONSyntaxError(e.value)
+        #print('parsed_content', self.parsed_content)
         self.name="publication_name_placeholder"
     def getContents(self):
-        return "sample publication content"
+        return self.content
 
 class PublicationCollection():
     def __init__(self):
         self
     def getPublicationByName(self, name):
-        return Publication("test")
+        try:
+            pub= Publication(name)
+        except BadJSONSyntaxError:
+            print('publication content invalid')
+            raise PubDamagedError("Publication content is not valid")
+        except:
+            raise PubNotFoundError("Publication not found")
+        return pub
 
 class Subscription():
-    def __init__(self, client, publication):
+    def __init__(self, client, publication, ID):
         self.client = client
         self.publication = publication
+        self.id=ID
 
 class SubscriptionCollection():
     def __init__(self):
@@ -65,8 +100,8 @@ class SubscriptionCollection():
         self.subscriptionsByPub[sub.publication.name].append(sub)
     def getSubsByPubName(self, pub_name):
         return self.subscriptionsByPub[pub_name]
-    def new(self, client, publication):
-        sub = Subscription(client, publication)
+    def new(self, client, publication, id):
+        sub = Subscription(client, publication, id)
         self.subscriptions.append(sub)
         self.subscriptionsByPub
         return sub
@@ -111,11 +146,21 @@ class Client():
                 verb = json_temp["verb"]
                 attributes = json_temp["attributes"]
                 self.do(verb, attributes)
+            else:
+                self.reportBadSyntax()
+    def reportBadSyntax(self):
+        self.respond(300, "error", "bad request syntax")
     def do(self, verb, attributes):
         if verb=="sub":
             print("handling SUB request")
-            pub = publicationCollection.getPublicationByName(attributes["pub_name"])
-            sub = subscriptionCollection.new(self, pub)
+            if not "pub_name" in attributes or not "id" in attributes:
+                self.reportBadSyntax()
+            try:
+                pub = publicationCollection.getPublicationByName(attributes["pub_name"])
+            except PubNotFoundError:
+                self.respond(404, "error", "publication not found")
+                return
+            sub = subscriptionCollection.new(self, pub, id)
             self.subscriptions.append(sub)
             print(self.subscriptions)
             self.respond(200, "ok", pub.getContents())
