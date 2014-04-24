@@ -150,6 +150,7 @@ class Client():
                 self.reportBadSyntax()
     def reportBadSyntax(self):
         self.respond(300, "error", "bad request syntax")
+
     def hasSubID(self, IDL):
         print("hasSub")
         for sub in self.subscriptions:
@@ -157,6 +158,7 @@ class Client():
             if sub.IDL==IDL:
                 return True
         return False
+        
     def do(self, verb, attributes):
         if verb=="sub":
             print("handling SUB request")
