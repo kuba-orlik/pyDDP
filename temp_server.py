@@ -107,7 +107,10 @@ class SubscriptionCollection():
 
     def getSubsByPubName(self, pub_name):
         return self.subscriptionsByPub[pub_name]
+<<<<<<< HEAD
 
+=======
+>>>>>>> af16a538c36f379dffe6101fc88694e5301a91cf
     def new(self, client, publication, idL):
         sub = Subscription(client, publication, idL)
         self.subscriptions.append(sub)
@@ -165,13 +168,21 @@ class Client():
         self.respond(300, "error", "bad request syntax")
 
     def hasSubID(self, IDL):
+<<<<<<< HEAD
+=======
+        print("hasSub")
+>>>>>>> af16a538c36f379dffe6101fc88694e5301a91cf
         for sub in self.subscriptions:
             print(sub.IDL, IDL)
             if sub.IDL==IDL:
                 return True
         return False
 <<<<<<< HEAD
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> af16a538c36f379dffe6101fc88694e5301a91cf
 =======
         
 >>>>>>> af16a538c36f379dffe6101fc88694e5301a91cf
