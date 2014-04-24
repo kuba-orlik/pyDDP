@@ -166,7 +166,6 @@ class Client():
 
     def reportBadSyntax(self):
         self.respond(300, "error", "bad request syntax")
-
     def hasSubID(self, IDL):
 <<<<<<< HEAD
 =======
@@ -179,6 +178,7 @@ class Client():
         return False
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
         
@@ -186,6 +186,8 @@ class Client():
 =======
         
 >>>>>>> af16a538c36f379dffe6101fc88694e5301a91cf
+=======
+>>>>>>> parent of af16a53... indentation
     def do(self, verb, attributes):
         print(verb)
         if verb=="sub":
