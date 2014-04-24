@@ -24,6 +24,7 @@ def monitorClients():
                 client = clientCollection.getBySocket(socket)
                 data = socket.recv(1024)
                 client.parseIncomingJSON(data)
+                client.respond(200, "ok", "ok")
 
 
 class ClientCollection():
@@ -44,12 +45,17 @@ class Client():
         print(connected_sockets)
     def parseIncomingJSON(self, string):
         string = str(string, encoding='UTF-8')
+        print(string)
         try:
             json_temp = json.loads(string)
         except ValueError:
             print("badly formatted json!")
             return
-        print(json_temp["message"])
+        verb_present = 'verb' in json_temp
+        print("verb_present:", verb_present)
+    def respond(self, res_number, status, message):
+            message = json.dumps({'res_number': res_number, 'status': status, 'message': message})
+            self.socket.send(bytes(message, "UTF-8"))
 
 client_monitor_thread = threading.Thread (target=monitorClients, args=() )
 client_monitor_thread.start()
