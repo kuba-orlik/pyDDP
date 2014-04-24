@@ -34,8 +34,16 @@ def monitorClients():
 
 
 class Publication():
-    def __init__(self, id):
+    def __init__(self, ID):
+        self.id=ID
+        print(open('/pubs/test.pub'))
+        self.name="publication_name_placeholder"
+
+class PublicationCollection():
+    def __init__(self):
         self
+    def getPublicationByName(self, name):
+        return name
 
 class Subscription():
     def __init(self, client, publication):
@@ -45,7 +53,19 @@ class Subscription():
 class SubscriptionCollection():
     def __init__(self):
         self.subscriptions = []
-    def remove(sub):
+        self.subscriptionsByPub = {}
+    def indexSubByPub(self, sub):
+        if not sub.publication.name in self.subscriptionsByPub:
+            self.subscriptionsByPub[sub.publication.name]=[]
+        self.subscriptionsByPub[sub.publication.name].append(sub)
+    def getSubsByPubName(self, pub_name):
+        return self.subscriptionsByPub[pub_name]
+    def new(self, client, publication):
+        sub = Subscription(client, publication)
+        self.subscriptions.append(sub)
+        self.subscriptionsByPub
+        return sub
+    def remove(self, sub):
         self.subscriptions.remove(sub)
 
 class ClientCollection():
@@ -85,7 +105,10 @@ class Client():
                 self.do(verb, attributes)
     def do(self, verb, attrbiutes):
         if verb=="sub":
-            print("create subscriptions")
+            pub = publicationCollection.getPublicationByName(attributes["name"])
+            sub = subscriptionCollection.new(self, pub)
+            self.subscriptions.append(sub)
+
     def respond(self, res_number, status, message):
             message = json.dumps({'res_number': res_number, 'status': status, 'message': message})
             self.socket.send(bytes(message, "UTF-8"))
@@ -99,6 +122,7 @@ client_monitor_thread.start()
 
 clientCollection = ClientCollection()
 subscriptionCollection = SubscriptionCollection()
+publicationCollection = PublicationCollection()
 
 while 1:
     (new_clientSocket, address) =  serversocket.accept()
