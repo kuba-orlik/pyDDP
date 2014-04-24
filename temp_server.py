@@ -46,7 +46,7 @@ class PublicationCollection():
         return name
 
 class Subscription():
-    def __init(self, client, publication):
+    def __init__(self, client, publication):
         self.client = client
         self.publication = publication
 
@@ -101,11 +101,14 @@ class Client():
             verb_present = 'verb' in json_temp
             print("verb_present:", verb_present)
             attributes_present = 'attributes' in json_temp
+            print("attributes_present:", attributes_present)
             if verb_present & attributes_present:
+                verb = json_temp["verb"]
+                attributes = json_temp["attributes"]
                 self.do(verb, attributes)
-    def do(self, verb, attrbiutes):
+    def do(self, verb, attributes):
         if verb=="sub":
-            pub = publicationCollection.getPublicationByName(attributes["name"])
+            pub = publicationCollection.getPublicationByName(attributes["pub_name"])
             sub = subscriptionCollection.new(self, pub)
             self.subscriptions.append(sub)
 
