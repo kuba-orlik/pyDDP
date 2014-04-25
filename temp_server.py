@@ -3,23 +3,32 @@ import select
 import threading
 import json
 
+#parsowanie stringu na byte'y
 def prepareString(string):
     return bytes(string, "UTF-8")
 
 #create an INET, STREAMing socket
 serversocket = socket.socket(
-    socket.AF_INET, socket.SOCK_STREAM)
+    socket.AF_INET, socket.SOCK_STREAM) #SOCK_STREAM -> TCP
+#bindowanie socketu na localhost:50007
 serversocket.bind(('', 50007))
-#serversocket.setblocking(0)
+#ten socket jest defaultowo blokujący
+#włącz nasłuchiwanie na socketcie serwerowym, (5) 0..5 maksymalna ilość socketów, które przyszły a nie dostały accept'a
 serversocket.listen(5)
 
+#tablica połączonych (aktualnie aktywnych) socketów, w tej tablicy przechowywujemy zaakceptowane sockety
 connected_sockets=[]
 
+#wywoływana w osobny wątku, w nieblokujący sposób zczytuje informacje od połączonych klientów
 def monitorClients():
     while 1:
+        #sprawdzenie czy są połączeni klienci
         if len(connected_sockets)>0:
+            #zwraca liste odpowiednich socketów
             ready_to_read, ready_to_write, in_error = select.select(connected_sockets, [], [], 1)
+            #pętla wykonuje się dla każdego socketu który jest gotowy do odczytu
             for socket in ready_to_read:
+
                 client = clientCollection.getBySocket(socket)
                 error = False
                 try:
@@ -104,10 +113,13 @@ class SubscriptionCollection():
     def remove(self, sub):
         self.subscriptions.remove(sub)
 
+#kolekcja klientów
 class ClientCollection():
+    #lista klientów (__init__ konstruktor) 
     def __init__(self):
         self.clients=[]
         self.total_clients=0
+    #dodanie klienta do kolekcji
     def addClient(self, client):
         self.clients.append(client)
         client.IDL=self.total_clients
