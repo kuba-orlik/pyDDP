@@ -2,6 +2,7 @@ import socket
 import select
 import threading
 import json
+import os
 
 #parsowanie stringu na byte'y
 def prepareString(string):
@@ -104,7 +105,8 @@ class PublicationCollection():
         f.close()
         return Publication(name)
 
-    
+    def delete(self, name):
+        os.remove("pubs/"+ name +".pub")
 
 
 class Subscription():
@@ -214,6 +216,8 @@ class Client():
             self.__sub(attributes)
         elif verb=="new_pub":
             self.__new_pub(attributes) 
+        elif verb=="delete_pub":
+            self.__delete_pub(attributes)
         else:
             print("bad verb")
             self.respond(300, "error", "unknown verb")
@@ -257,7 +261,7 @@ class Client():
             self.respond(420, "error", "publication name does not exist")
             return
         publicationCollection.delete(attributes["name"])
-        respondOK(200)
+        self.respondOK(200)
 
     def respond(self, res_number, status, message):
             message = json.dumps({'res_number': res_number, 'status': status, 'message': message})
