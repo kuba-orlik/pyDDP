@@ -10,7 +10,7 @@ s.send(bytes(text, 'UTF-8'))
 data = s.recv(1024)
 print('Received', repr(data))
 
-text = '{"verb":"new_pub", "attributes":{"name":"test23","content":"{}"}}'
+text = '{"verb":"new_pub", "attributes":{"name":"test234","content":{"title":"trolololo"}}}'
 s.send(bytes(text, 'UTF-8'))
 data = s.recv(1024)
 print('Received', repr(data))

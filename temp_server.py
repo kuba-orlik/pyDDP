@@ -104,6 +104,8 @@ class PublicationCollection():
         f.close()
         return Publication(name)
 
+    
+
 
 class Subscription():
     def __init__(self, client, publication, IDL):
@@ -246,6 +248,16 @@ class Client():
             return
         publicationCollection.createPublication(attributes["name"], attributes["content"])
         self.respondOK("")
+
+    def __delete_pub(self, attributes):
+        if not Validator.attributesPresent(["name"], attributes):
+            self.reportBadSyntax("'name' attribute missing")
+            return  
+        if not publicationCollection.nameTaken(attributes["name"]):
+            self.respond(420, "error", "publication name does not exist")
+            return
+        publicationCollection.delete(attributes["name"])
+        respondOK(200)
 
     def respond(self, res_number, status, message):
             message = json.dumps({'res_number': res_number, 'status': status, 'message': message})
