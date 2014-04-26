@@ -132,8 +132,8 @@ class ClientCollection():
 
 class Validator:
     def attributesPresent(needles, haystack):
-        for needle in neeldes:
-            if not needle in haystack
+        for needle in needles:
+            if not needle in haystack:
                 return False
         return True
 
@@ -180,7 +180,7 @@ class Client():
 
 
 
-    def __sub(attributes):
+    def __sub(self, attributes):
         print("handling SUB request")
         if not Validator.attributesPresent(["id", "pub_name"], attributes):
             self.reportBadSyntax()
