@@ -98,6 +98,13 @@ class PublicationCollection():
             return False
         return True
 
+    def createPublication(self, name, content):
+        f = open("pubs/" + name + ".pub", "a")
+        f.write(content)
+        f.close()
+        return Publication(name)
+
+
 class Subscription():
     def __init__(self, client, publication, IDL):
         self.client = client
@@ -155,7 +162,8 @@ class Validator:
     def isCorerctJSON(string):
         try:
             json.loads(string)
-        except ValueError:
+        except Exception as e:
+            print(str(e))
             return False
         return True
 
@@ -171,7 +179,9 @@ class Client():
         string = str(string, encoding='UTF-8')
         json_correct = Validator.isCorerctJSON(string)
         if not json_correct:
+            print(string)
             print("badly formatted json")
+            self.reportBadSyntax("badly formatted json")
             return
         else:
             json_temp = json.loads(string)
@@ -233,6 +243,8 @@ class Client():
             return
         if not Validator.isCorerctJSON(attributes["content"]):
             self.reportBadSyntax("incorrect json in content")
+            return
+        publicationCollection.createPublication(attributes["name"], attributes["content"])
         self.respondOK("")
 
     def respond(self, res_number, status, message):
