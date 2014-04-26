@@ -226,12 +226,13 @@ class Client():
 
     def __new_pub(self, attributes):
         if not Validator.attributesPresent(["name", "content"], attributes):
-            self.reportBadSyntax()
+            self.reportBadSyntax("some attributes missing")
             return  
         if publicationCollection.nameTaken(attributes["name"]):
             self.respond(420, "error", "publication name already exists")
             return
-
+        if not Validator.isCorerctJSON(attributes["content"]):
+            self.reportBadSyntax("incorrect json in content")
         self.respondOK("")
 
     def respond(self, res_number, status, message):
