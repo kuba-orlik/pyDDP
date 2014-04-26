@@ -80,6 +80,7 @@ class Publication():
 class PublicationCollection():
     def __init__(self):
         self
+
     def getPublicationByName(self, name):
         try:
             pub= Publication(name)
@@ -89,6 +90,13 @@ class PublicationCollection():
         except:
             raise PubNotFoundError("Publication not found")
         return pub
+
+    def nameTaken(self, name):
+        try:
+            open("pubs/"+name+".pub")
+        except FileNotFoundError:
+            return False
+        return True
 
 class Subscription():
     def __init__(self, client, publication, IDL):
@@ -144,6 +152,13 @@ class Validator:
                 return False
         return True
 
+    def isCorerctJSON(string):
+        try:
+            json.loads(string)
+        except ValueError:
+            return False
+        return True
+
 class Client():
     def __init__(self, socket, address):
         self.socket = socket
@@ -154,27 +169,25 @@ class Client():
     def parseIncomingJSON(self, string):
         #konwersja ciągu bajtów na stringa
         string = str(string, encoding='UTF-8')
-        try:
-            #parsowanie JSONa w postaci stringa na obiekt pythonowy (sprawdzenie poprawności sk)
-            json_temp = json.loads(string)
-            json_correct = True
-        except ValueError:
-            print("badly formatted json!")
-            json_correct = False
-        if json_correct:
-            verb_present = 'verb' in json_temp
-            print("verb_present:", verb_present)
-            attributes_present = 'attributes' in json_temp
-            print("attributes_present:", attributes_present)
-            if verb_present & attributes_present:
-                verb = json_temp["verb"]
-                attributes = json_temp["attributes"]
-                self.do(verb, attributes)
-            else:
-                self.reportBadSyntax()
+        json_correct = Validator.isCorerctJSON(string)
+        if not json_correct:
+            print("badly formatted json")
+            return
+        verb_present = 'verb' in json_temp
+        print("verb_present:", verb_present)
+        attributes_present = 'attributes' in json_temp
+        print("attributes_present:", attributes_present)
+        if verb_present & attributes_present:
+            verb = json_temp["verb"]
+            attributes = json_temp["attributes"]
+            self.do(verb, attributes)
+        else:
+            self.reportBadSyntax()
 
-    def reportBadSyntax(self):
-        self.respond(300, "error", "bad request syntax")
+    def reportBadSyntax(self, message=None):
+        if message==None:
+            message="bad request syntax"
+        self.respond(300, "error", message)
 
     def hasSubID(self, IDL):
         for sub in self.subscriptions:
@@ -185,6 +198,8 @@ class Client():
     def do(self, verb, attributes):
         if verb=="sub":
             self.__sub(attributes)
+        elif verb=="new_pub":
+            self.__new_pub(attributes) 
         else:
             print("bad verb")
             self.respond(300, "error", "unknown verb")
@@ -193,10 +208,10 @@ class Client():
         print("handling SUB request")
         if not Validator.attributesPresent(["id", "pub_name"], attributes):
             self.reportBadSyntax()
+            return
         hasSub = self.hasSubID(attributes["id"])
-        print("hasSub:", hasSub)
         if hasSub:
-            self.respond(422, "error", "you already have that id assigned to a publication. Unsub first")
+            self.respond(422, "error", "you already have that id assigned to a publication. Unsub first or choose a different ID")
             return
         try:
             pub = publicationCollection.getPublicationByName(attributes["pub_name"])
@@ -205,9 +220,17 @@ class Client():
             return
         sub = subscriptionCollection.new(self, pub, attributes["id"])
         self.subscriptions.append(sub)
-        #print(self.subscriptions)
         self.respondOK(pub.getContents())
 
+    def __new_pub(self, attributes):
+        if not Validator.attributesPresent(["name", "content"], attributes):
+            self.reportBadSyntax()
+            return  
+        if publicationCollection.nameTaken(attributes["name"]):
+            self.respond(420, "error", "publication name already exists")
+            return
+
+        self.respondOK("")
 
     def respond(self, res_number, status, message):
             message = json.dumps({'res_number': res_number, 'status': status, 'message': message})
