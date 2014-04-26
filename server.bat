@@ -1,1 +1,1 @@
-python temp_server.py
+cmd /k python temp_server.py

@@ -130,6 +130,13 @@ class ClientCollection():
             if client.socket==socket:
                 return client
 
+class Validator:
+    def attributesPresent(needles, haystack):
+        for needle in neeldes:
+            if not needle in haystack
+                return False
+        return True
+
 class Client():
     def __init__(self, socket, address):
         self.socket = socket
@@ -166,26 +173,32 @@ class Client():
         return False
     def do(self, verb, attributes):
         if verb=="sub":
-            print("handling SUB request")
-            if not "pub_name" in attributes or not "id" in attributes:
-                self.reportBadSyntax()
-            hasSub = self.hasSubID(attributes["id"])
-            print("hasSub:", hasSub)
-            if hasSub:
-                self.respond(422, "error", "you already have that id assigned to a publication. Unsub first")
-                return
-            try:
-                pub = publicationCollection.getPublicationByName(attributes["pub_name"])
-            except PubNotFoundError:
-                self.respond(404, "error", "publication not found")
-                return
-            sub = subscriptionCollection.new(self, pub, attributes["id"])
-            self.subscriptions.append(sub)
-            print(self.subscriptions)
-            self.respond(200, "ok", pub.getContents())
+            self.__sub(attributes)
         else:
             print("bad verb")
             self.respond(300, "error", "unknown verb")
+
+
+
+    def __sub(attributes):
+        print("handling SUB request")
+        if not Validator.attributesPresent(["id", "pub_name"], attributes):
+            self.reportBadSyntax()
+        hasSub = self.hasSubID(attributes["id"])
+        print("hasSub:", hasSub)
+        if hasSub:
+            self.respond(422, "error", "you already have that id assigned to a publication. Unsub first")
+            return
+        try:
+            pub = publicationCollection.getPublicationByName(attributes["pub_name"])
+        except PubNotFoundError:
+            self.respond(404, "error", "publication not found")
+            return
+        sub = subscriptionCollection.new(self, pub, attributes["id"])
+        self.subscriptions.append(sub)
+        print(self.subscriptions)
+        self.respond(200, "ok", pub.getContents())
+
 
     def respond(self, res_number, status, message):
             message = json.dumps({'res_number': res_number, 'status': status, 'message': message})
