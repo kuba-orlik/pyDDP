@@ -196,14 +196,18 @@ class Client():
             return
         sub = subscriptionCollection.new(self, pub, attributes["id"])
         self.subscriptions.append(sub)
-        print(self.subscriptions)
-        self.respond(200, "ok", pub.getContents())
+        #print(self.subscriptions)
+        self.respondOK(pub.getContents())
 
 
     def respond(self, res_number, status, message):
             message = json.dumps({'res_number': res_number, 'status': status, 'message': message})
             print("sending", message)
             self.socket.send(bytes(message, "UTF-8"))
+
+    def respondOK(self, message):
+        self.respond(200, "ok", message)
+
     def unsubAll(self):
         for sub in self.subscriptions:
             self.subscriptions.remove(sub)
