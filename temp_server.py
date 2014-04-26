@@ -173,6 +173,8 @@ class Client():
         if not json_correct:
             print("badly formatted json")
             return
+        else:
+            json_temp = json.loads(string)
         verb_present = 'verb' in json_temp
         print("verb_present:", verb_present)
         attributes_present = 'attributes' in json_temp
