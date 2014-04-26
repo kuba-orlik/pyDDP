@@ -73,6 +73,7 @@ class Publication():
         except Exception as e:
             raise BadJSONSyntaxError(e.value)
         self.name="publication_name_placeholder"
+
     def getContents(self):
         return self.content
 
@@ -99,17 +100,21 @@ class SubscriptionCollection():
     def __init__(self):
         self.subscriptions = []
         self.subscriptionsByPub = {}
+
     def indexSubByPub(self, sub):
         if not sub.publication.name in self.subscriptionsByPub:
             self.subscriptionsByPub[sub.publication.name]=[]
         self.subscriptionsByPub[sub.publication.name].append(sub)
+
     def getSubsByPubName(self, pub_name):
         return self.subscriptionsByPub[pub_name]
+
     def new(self, client, publication, idL):
         sub = Subscription(client, publication, idL)
         self.subscriptions.append(sub)
         self.subscriptionsByPub
         return sub
+
     def remove(self, sub):
         self.subscriptions.remove(sub)
 
@@ -119,12 +124,14 @@ class ClientCollection():
     def __init__(self):
         self.clients=[]
         self.total_clients=0
+
     #dodanie klienta do kolekcji
     def addClient(self, client):
         self.clients.append(client)
         client.IDL=self.total_clients
         self.total_clients+=1
         connected_sockets.append(client.socket)
+
     def getBySocket(self, socket):
         for client in self.clients:
             if client.socket==socket:
@@ -143,6 +150,7 @@ class Client():
         self.address = address
         self.IDL = None
         self.subscriptions = []
+
     def parseIncomingJSON(self, string):
         #konwersja ciągu bajtów na stringa
         string = str(string, encoding='UTF-8')
@@ -164,21 +172,22 @@ class Client():
                 self.do(verb, attributes)
             else:
                 self.reportBadSyntax()
+
     def reportBadSyntax(self):
         self.respond(300, "error", "bad request syntax")
+
     def hasSubID(self, IDL):
         for sub in self.subscriptions:
             if sub.IDL==IDL:
                 return True
         return False
+
     def do(self, verb, attributes):
         if verb=="sub":
             self.__sub(attributes)
         else:
             print("bad verb")
             self.respond(300, "error", "unknown verb")
-
-
 
     def __sub(self, attributes):
         print("handling SUB request")
