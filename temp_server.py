@@ -137,8 +137,10 @@ class Client():
         self.IDL = None
         self.subscriptions = []
     def parseIncomingJSON(self, string):
+        #konwersja ciągu bajtów na stringa
         string = str(string, encoding='UTF-8')
         try:
+            #parsowanie JSONa w postaci stringa na obiekt pythonowy (sprawdzenie poprawności sk)
             json_temp = json.loads(string)
             json_correct = True
         except ValueError:
