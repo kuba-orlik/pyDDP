@@ -218,6 +218,8 @@ class Client():
             self.__new_pub(attributes) 
         elif verb=="delete_pub":
             self.__delete_pub(attributes)
+        elif verb=="__update_pub":
+            self.__update_pub(attributes)
         else:
             print("bad verb")
             self.respond(300, "error", "unknown verb")
@@ -262,6 +264,9 @@ class Client():
             return
         publicationCollection.delete(attributes["name"])
         self.respondOK(200)
+
+    def __update_pub(self, attributes):
+
 
     def respond(self, res_number, status, message):
             message = json.dumps({'res_number': res_number, 'status': status, 'message': message})
