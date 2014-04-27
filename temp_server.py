@@ -84,6 +84,9 @@ class Publication():
     def getContents(self):
         return self.content
 
+    def getContentsAsObject(self):
+        return json.loads(self.content)
+
     def applyPatch(self, patch):
         json_l = json.loads(self.content)
         print("before patch:", json_l)
@@ -103,10 +106,20 @@ class Publication():
         f.truncate()
         f.write(self.content)
 
-    def propagate(self):
-        clients = clientCollection.clients
-        for client in clients:
-            client.sendPubUpdate(self)
+    def propagate(self, type="update"):
+        print("in propagate")
+        subs = self.getSubscriptions()
+        print(subs)
+        for sub in subs:
+            sub.sendUpdate()
+
+    def getSubscriptions(self):
+        list = []
+        print("all subs:", subscriptionCollection.subscriptions)
+        for sub in subscriptionCollection.subscriptions:
+            if sub.publication.IDL==self.IDL:
+                list.append(sub)
+        return list
 
 class PublicationCollection():
     def __init__(self):
@@ -144,6 +157,13 @@ class Subscription():
         self.client = client
         self.publication = publication
         self.IDL=IDL
+
+    def sendUpdate(self, type="update"):
+        response = {"verb":"sub_push", "attributes":{"sub_id": self.IDL, "change_type": type, "content":self.publication.getContentsAsObject()}}
+        message = json.dumps(response)
+        print("responding:", response)
+        client.socket.send(bytes(message, "UTF-8"))
+
 
 class SubscriptionCollection():
     def __init__(self):
@@ -309,10 +329,7 @@ class Client():
         publication = publicationCollection.getPublicationByName(attributes['pub_name'])
         publication.applyPatch(patch)
         self.respondOK(publication.getContents())
-        publication.propagate()
-
-    def sendPubUpdate(self, publication):
-
+        publication.propagate("update")
 
     def respond(self, res_number, status, message):
             message = json.dumps({'res_number': res_number, 'status': status, 'message': message})
