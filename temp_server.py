@@ -266,6 +266,12 @@ class Client():
         self.respondOK(200)
 
     def __update_pub(self, attributes):
+        if not Validator.attributesPresent(["pub_name", "changes"], attributes):
+            self.reportBadSyntax("some attributes missing")
+            return          
+        if not publicationCollection.nameTaken(attributes["name"]):
+            self.respond(404, "error", "publication name not found")
+            return
 
 
     def respond(self, res_number, status, message):
