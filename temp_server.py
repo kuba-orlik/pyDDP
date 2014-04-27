@@ -54,7 +54,7 @@ def monitorClients():
 class PubNotFoundError(Exception):
     def __init__(self, value):
         self.value = value
-    def __str__(self):
+    def __str__(self):  
         return repr(self.value)
 
 class PubDamagedError(Exception):
@@ -85,9 +85,11 @@ class Publication():
         return self.content
 
     def applyPatch(self, patch):
-        json = json.loads(self.content)
-        patch.apply(json)
-        self.setContentByObject(json)
+        json_l = json.loads(self.content)
+        print("before patch:", json_l)
+        json_l = patch.apply(json_l)
+        print("after patch: ", json_l)
+        self.setContentByObject(json_l)
 
     def setContentByObject(self, object):
         self.content = json.dumps(object)
@@ -97,7 +99,7 @@ class Publication():
         return "pubs/" + self.IDL + ".pub"
 
     def setContentString(self, string):
-        f = open(self.__getFilePath(), "rw")
+        f = open(self.__getFilePath(), "w")
         f.truncate()
         f.write(self.content)
 
@@ -241,7 +243,7 @@ class Client():
             self.__new_pub(attributes) 
         elif verb=="delete_pub":
             self.__delete_pub(attributes)
-        elif verb=="__update_pub":
+        elif verb=="update_pub":
             self.__update_pub(attributes)
         else:
             print("bad verb")
@@ -295,7 +297,10 @@ class Client():
         if not publicationCollection.nameTaken(attributes["pub_name"]):
             self.respond(404, "error", "publication name not found")
             return
-        patch = JsonPatch(attributes["patch"])
+        if not isinstance(attributes["changes"], list):
+            self.reportBadSyntax("'changes' attribute must be a [] list")
+            return
+        patch = jsonpatch.JsonPatch(attributes["changes"])
         publication = publicationCollection.getPublicationByName(attributes['pub_name'])
         publication.applyPatch(patch)
         self.respondOK(publication.getContents())

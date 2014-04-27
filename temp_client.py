@@ -16,7 +16,11 @@ data = s.recv(1024)
 print('Received', repr(data))
 
 text = '{"verb":"new_pub", "attributes":{"name":"test234","content":"{\\\"title\\\":\\\"trololololo\\\"}"}}'
+s.send(bytes(text, 'UTF-8'))
+data = s.recv(1024)
+print('Received', repr(data))
 
+text = '{"verb":"update_pub", "attributes":{"pub_name":"test234","changes":[{"op": "add", "path": "/foo", "value": "bar"}]}}'
 s.send(bytes(text, 'UTF-8'))
 data = s.recv(1024)
 print('Received', repr(data))
