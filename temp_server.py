@@ -2,7 +2,12 @@ import socket
 import select
 import threading
 import json
-import jsonpatch
+import sys
+try:
+    import jsonpatch
+except:
+    print("jsonpatch package has to be installed for this script to run properly. Install it and run this script again")
+    sys.exit()
 import os
 
 #parsowanie stringu na byte'y
@@ -270,9 +275,14 @@ class Client():
         if not Validator.attributesPresent(["pub_name", "changes"], attributes):
             self.reportBadSyntax("some attributes missing")
             return          
-        if not publicationCollection.nameTaken(attributes["name"]):
+        if not publicationCollection.nameTaken(attributes["pub_name"]):
             self.respond(404, "error", "publication name not found")
             return
+        patch = JsonPatch(attributes["patch"])
+        publication = publicationCollection.getPublicationByName(attributes['pub_name'])
+        publication.applyPatch(patch)
+        self.respondOK(publication.getContents())
+        publication.propagate()
 
 
     def respond(self, res_number, status, message):
