@@ -79,6 +79,7 @@ class Publication():
             self.parsed_content = json.loads(self.content)
         except Exception as e:
             raise BadJSONSyntaxError(e.value)
+        self.last_propagated_content = self.parsed_content
         self.name="publication_name_placeholder"
 
     def getContents(self):
@@ -106,12 +107,14 @@ class Publication():
         f.truncate()
         f.write(self.content)
 
-    def propagate(self, type="update"):
+    def propagate(self, typeL="update"):
         print("in propagate")
+        changes = json.loads(jsonpatch.make_patch(self.last_propagated_content, self.getContentsAsObject()).to_string())
         subs = self.getSubscriptions()
         print(subs)
         for sub in subs:
-            sub.sendUpdate()
+            sub.sendUpdate(changes, typeL)
+        self.last_propagated_content = self.content
 
     def getSubscriptions(self):
         list = []
@@ -158,8 +161,9 @@ class Subscription():
         self.publication = publication
         self.IDL=IDL
 
-    def sendUpdate(self, type="update"):
-        response = {"verb":"sub_push", "attributes":{"sub_id": self.IDL, "change_type": type, "content":self.publication.getContentsAsObject()}}
+    def sendUpdate(self, changes, typeL="update"):
+        response = {"verb":"sub_push", "attributes":{"sub_id": self.IDL, "change_type": typeL, "content":changes}}
+        print(response)
         message = json.dumps(response)
         print("responding:", response)
         client.socket.send(bytes(message, "UTF-8"))
@@ -270,6 +274,8 @@ class Client():
             self.__delete_pub(attributes)
         elif verb=="update_pub":
             self.__update_pub(attributes)
+        elif verb=="replace_pub":
+            self.__replace_pub(attributes)
         else:
             print("bad verb")
             self.respond(300, "error", "unknown verb")
@@ -330,6 +336,18 @@ class Client():
         publication.applyPatch(patch)
         self.respondOK(publication.getContents())
         publication.propagate("update")
+
+    def __replace_pub(self, attributes):
+        if not Validator.attributesPresent(["pub_name", "new_content"], attributes):
+            self.reportBadSyntax("some attributes missing")
+            return   
+        if not publicationCollection.nameTaken(attributes["pub_name"]):
+            self.respond(404, "error", "publication name not found")
+            return
+        publication = publicationCollection.getPublicationByName(attributes["pub_name"])
+        publication.setContentByObject(attributes["new_content"])
+        self.respondOK(publication.getContents())
+        publication.propagate("replace")
 
     def respond(self, res_number, status, message):
             message = json.dumps({'res_number': res_number, 'status': status, 'message': message})
