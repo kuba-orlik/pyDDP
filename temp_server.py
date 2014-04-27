@@ -84,6 +84,23 @@ class Publication():
     def getContents(self):
         return self.content
 
+    def applyPatch(self, patch):
+        json = json.loads(self.content)
+        patch.apply(json)
+        self.setContentByObject(json)
+
+    def setContentByObject(self, object):
+        self.content = json.dumps(object)
+        self.setContentString(self.content)
+
+    def __getFilePath(self):
+        return "pubs/" + self.IDL + ".pub"
+
+    def setContentString(self, string):
+        f = open(self.__getFilePath(), "rw")
+        f.truncate()
+        f.write(self.content)
+
 class PublicationCollection():
     def __init__(self):
         self
