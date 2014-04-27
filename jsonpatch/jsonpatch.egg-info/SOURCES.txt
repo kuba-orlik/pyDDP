@@ -5,6 +5,7 @@ README.md
 ext_tests.py
 jsonpatch.py
 requirements.txt
+setup.cfg
 setup.py
 tests.py
 bin/jsondiff

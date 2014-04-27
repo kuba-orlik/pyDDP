@@ -3,7 +3,7 @@ Name: jsonpatch
 Version: 1.5
 Summary:  Apply JSON-Patches (RFC 6902) 
 Home-page: https://github.com/stefankoegl/python-json-patch
-Author: Stefan Kögl
+Author: Stefan KĂ¶gl
 Author-email: stefan@skoegl.net
 License: Modified BSD License
 Description: UNKNOWN

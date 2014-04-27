@@ -2,6 +2,7 @@ import socket
 import select
 import threading
 import json
+import "jsonpatch/jsonpatch.py"
 import os
 
 #parsowanie stringu na byte'y
