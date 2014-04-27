@@ -103,6 +103,11 @@ class Publication():
         f.truncate()
         f.write(self.content)
 
+    def propagate(self):
+        clients = clientCollection.clients
+        for client in clients:
+            client.sendPubUpdate(self)
+
 class PublicationCollection():
     def __init__(self):
         self
@@ -305,6 +310,8 @@ class Client():
         publication.applyPatch(patch)
         self.respondOK(publication.getContents())
         publication.propagate()
+
+    def sendPubUpdate(self, publication):
 
 
     def respond(self, res_number, status, message):
