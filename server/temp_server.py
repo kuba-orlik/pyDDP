@@ -1,3 +1,4 @@
+import time
 import socket
 import select
 import threading
@@ -23,6 +24,7 @@ serversocket.listen(5)
 #wywoływana w osobny wątku, w nieblokujący sposób zczytuje informacje od połączonych klientów
 def monitorClients():
     while 1:
+        time.sleep(0.2)
         #sprawdzenie czy są połączeni klienci
         if len(client.Collection.connected_sockets)>0:
             #zwraca liste odpowiednich socketów

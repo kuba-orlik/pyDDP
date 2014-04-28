@@ -9,6 +9,7 @@ def newSub(pub_name):
 	req_body["attributes"]["pub_name"]=pub_name
 	response = api.send_request(req_body)
 	print(response)
+	print(response["status"])
 
 class Subscription():
 	def __init__(self, pub_name):
