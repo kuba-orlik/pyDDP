@@ -34,7 +34,7 @@ class Client():
         self.IDL = None
         self.subscriptions = []
 
-    def parseIncomingJSON(self, string):
+    def handleIncomingJSON(self, string):
         #konwersja ciągu bajtów na stringa
         string = str(string, encoding='UTF-8')
         json_correct = validator.isCorerctJSON(string)

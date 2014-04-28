@@ -41,7 +41,7 @@ def monitorClients():
                     print("client_temp", client_temp.IDL, "disconnected")
                     client_temp.unsubAll()
                     continue
-                client_temp.parseIncomingJSON(data)
+                client_temp.handleIncomingJSON(data)
                 #client.respond(200, "ok", "ok")
 
 #kolekcja klientów
