@@ -14,7 +14,7 @@ serversocket = socket.socket(
     socket.AF_INET, socket.SOCK_STREAM) #SOCK_STREAM -> TCP
 #bindowanie socketu na localhost:50007
 serversocket.bind(('', 50007))
-#ten socket jest defaultowo blokujący
+#ten socket defaultowo działa w sposób blokujący
 #włącz nasłuchiwanie na socketcie serwerowym, (5) 0..5 maksymalna ilość socketów, które przyszły a nie dostały accept'a
 serversocket.listen(5)
 
@@ -29,7 +29,6 @@ def monitorClients():
             ready_to_read, ready_to_write, in_error = select.select(client.Collection.connected_sockets, [], [], 1)
             #pętla wykonuje się dla każdego socketu który jest gotowy do odczytu
             for socket in ready_to_read:
-
                 client_temp = client.Collection.getBySocket(socket)
                 error = False
                 try:
@@ -42,11 +41,6 @@ def monitorClients():
                     client_temp.unsubAll()
                     continue
                 client_temp.handleIncomingJSON(data)
-                #client.respond(200, "ok", "ok")
-
-#kolekcja klientów
-
-
 
 client_monitor_thread = threading.Thread (target=monitorClients, args=() )
 client_monitor_thread.start()
