@@ -35,9 +35,11 @@ def monitorClients():
                     data = socket.recv(1024)
                 except ConnectionAbortedError:
                     error = True
+                except ConnectionResetError:
+                    error = True
                 if error or len(data)==0:
                     client.Collection.connected_sockets.remove(socket)
-                    print("client_temp", client_temp.IDL, "disconnected")
+                    print("client", client_temp.IDL, "disconnected")
                     client_temp.unsubAll()
                     continue
                 client_temp.handleIncomingJSON(data)
@@ -47,5 +49,6 @@ client_monitor_thread.start()
 
 while 1:
     (client_socket, address) =  serversocket.accept()
+    print("new client!")
     client_new = client.Client(client_socket, address)
     client.Collection.addClient(client_new)

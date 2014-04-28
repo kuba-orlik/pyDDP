@@ -53,7 +53,7 @@ class Client():
             verb = json_temp["verb"]
             attributes = json_temp["attributes"]
             if "request_id" in json_temp:
-                request_id=json_temp["attributes"]
+                request_id=json_temp["request_id"]
             else:
                 request_id=None
             self.do(verb, attributes, request_id)
@@ -63,7 +63,7 @@ class Client():
     def reportBadSyntax(self, message=None, request_id=None):
         if message==None or message=="":
             message="bad request syntax"
-        self.respond(300, "error", message)
+        self.respond(300, "error", message, request_id)
 
     def hasSubID(self, IDL):
         for sub in self.subscriptions:

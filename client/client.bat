@@ -1,0 +1,1 @@
+cmd /k python client_proper.py
