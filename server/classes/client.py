@@ -108,7 +108,7 @@ class Client():
             return
         sub = subscription.Collection.new(self, pub, attributes["id"])
         self.subscriptions.append(sub)
-        self.respondOK(pub.getContents(), request_id)
+        self.respondOK(pub.getContentsAsObject(), request_id)
 
     def __new_pub(self, attributes, request_id):
         if not validator.attributesPresent(["name", "content"], attributes):
@@ -117,9 +117,9 @@ class Client():
         if publication.Collection.nameTaken(attributes["name"]):
             self.respond(420, "error", "publication name already exists", request_id)
             return
-        if not validator.isCorerctJSON(attributes["content"]):
-            self.reportBadSyntax("incorrect json in content", request_id)
-            return
+        #if not validator.isCorerctJSON(attributes["content"]):
+        #    self.reportBadSyntax("incorrect json in content", request_id)
+        #    return
         publication.Collection.createPublication(attributes["name"], attributes["content"])
         self.respondOK(None,  request_id)
 

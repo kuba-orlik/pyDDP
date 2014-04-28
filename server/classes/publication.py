@@ -99,9 +99,9 @@ class Collection:
         f.close()
         return True
 
-    def createPublication(name, content):
+    def createPublication(name, content_obj):
         f = open("pubs/" + name + ".pub", "a")
-        f.write(content)
+        f.write(json.dumps(content_obj))
         f.close()
         return Publication(name)
 
