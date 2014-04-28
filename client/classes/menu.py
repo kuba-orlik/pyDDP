@@ -1,4 +1,5 @@
 import subscription
+import publication
 
 def display():
 	print("Hi, user! Choose one option from the list below:")
@@ -26,8 +27,15 @@ def display():
 			pub_id=int(pub_id)
 			subscription.unsub(pub_id)
 	elif menu == "3":
-		json = input("json:")
-		add_pub(json)
+		title=input("New publication's name:")
+		content=input("\"" + title + "\"'s content:")
+		res = publication.create(title, content)
+		if res==-1:
+			print("\n\n\ninvalid json content\n\n")
+		elif res==-2:
+			print("\n\n\nname already taken\n\n")
+		else:
+			print("\n\n\npublication created succesfully\n\n")
 	elif menu == "4":
 		pub_id = input("publication id:")
 		json = input("json:")
@@ -48,7 +56,7 @@ def display():
 
 def enlistSubscriptions():
 	if len(subscription.collection)==0:
-		print("Currently not subscribed to any publication")
+		print("\n\n\nCurrently not subscribed to any publication\n\n")
 		print()
 		return False
 	else:
