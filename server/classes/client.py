@@ -141,12 +141,12 @@ class Client():
             self.respond(404, "error", "publication name not found", request_id)
             return
         if not isinstance(attributes["changes"], list):
-            self.reportBadSyntax("'changes' attribute must be a [] list",request_id)
+            self.reportBadSyntax("changes attribute must be a [] list",request_id)
             return
         patch = jsonpatch.JsonPatch(attributes["changes"])
         pub = publication.Collection.getPublicationByName(attributes['pub_name'])
         pub.applyPatch(patch)
-        self.respondOK(pub.getContents(), request_id)
+        self.respondOK(pub.getContentsAsObject(), request_id)
         pub.propagate("update")
 
     def __replace_pub(self, attributes, request_id):
@@ -158,7 +158,7 @@ class Client():
             return
         pub = publication.Collection.getPublicationByName(attributes["pub_name"])
         pub.setContentByObject(attributes["new_content"])
-        self.respondOK(pub.getContents(),request_id)
+        self.respondOK(pub.getContentsAsObject(),request_id)
         pub.propagate("replace")
 
     def respond(self, res_number, status, message, request_id):

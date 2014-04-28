@@ -34,6 +34,7 @@ def listening_loop():
 			#print("request queue not empty")
 			req_body_str = req.getBodyString()
 			main_socket.send(bytes(req_body_str, "UTF-8"))
+			print("sent", req_body_str)
 			api.sent_requests.append(req)
 		#handle the info
 		ready = select.select([main_socket], [], [], 0.5)
