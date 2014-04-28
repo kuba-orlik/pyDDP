@@ -2,6 +2,7 @@ import request
 import time
 import json
 import queue
+import subscription
 global main_socket
 global requests_to_send		
 
@@ -47,4 +48,9 @@ def handle_server_response(response):
 			sent_requests.remove(req_obj)
 	else:
 		#handle push
+		attributes = response_body["attributes"]
+		sub_id = attributes["sub_id"]
+		patch = attributes["content"]
+		sub = subscription.getByID(sub_id)
+		sub.applyPatch(patch)
 		return

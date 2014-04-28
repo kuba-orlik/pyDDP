@@ -1,5 +1,8 @@
 import uuid
 import api
+import os
+import json
+import jsonpatch
 
 def newSub(pub_name):
 	req_body = {}
@@ -15,6 +18,13 @@ def newSub(pub_name):
 	else:
 		raise Exception("publication does not exist")
 	#print(response["status"])
+
+def getByID(IDL):
+	for sub in collection:
+		if sub.id==IDL:
+			return sub
+	else:
+		return None
 
 collection = []
 
@@ -35,6 +45,17 @@ class Subscription():
 		collection.append(self)
 		self.pub_name = pub_name
 		self.pub_content = content
-		self.id=idL
+		self.id=str(idL)
+		self.is_displayed = False
 		return
+
+	def display(self):
+		self.is_displayed = True
+		os.system('CLS')
+		print(self.pub_content)
 		
+	def applyPatch(self, patch):
+		self.pub_content = jsonpatch.apply_patch(self.pub_content, patch)
+		if self.is_displayed:
+			self.display()
+

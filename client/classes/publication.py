@@ -59,3 +59,17 @@ def replace(name, new_content_str):
 		return 0
 	else:
 		return -100
+
+def delete(name):
+	req_body = {}
+	req_body["verb"]="delete_pub"
+	req_body["attributes"]={}
+	req_body["attributes"]["name"]=name
+	response = api.send_request(req_body)
+	code = response["res_number"]
+	if code==404:
+		return -1
+	elif code==200:
+		return 0
+	else:
+		return -100

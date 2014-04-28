@@ -69,10 +69,21 @@ def display():
 			print("\n\n\npublication replaced succesfully!\n\n\n")
 	elif menu == "6":
 		#delete_pub
-		pub_id = input("publication id:")
-		delete_pub(pub_id)
+		pub_name = input("Name of publication to delete:")
+		res = publication.delete(pub_name)
+		if res==0:
+			print("\n\n\nPublication deleted succesfully\n\n\n")
+		elif res==-1:
+			print("\n\n\nPublication", pub_name, "does not exist\n\n\n")
+		else:
+			print("unknown error")
 	elif menu =="7":
 		#live pub preview:
+		sub_index = getSubIndex()
+		if not sub_index==None:
+			sub_index=int(sub_index)
+			subscription.collection[sub_index].display()
+			input()
 		return
 	elif menu == "0":
 		exit = 1
@@ -83,7 +94,7 @@ def display():
 
 def enlistSubscriptions():
 	if len(subscription.collection)==0:
-		print("\n\n\nCurrently not subscribed to any publication\n\n")
+		print("\n\n\nCurrently not subscribed to any publication. Subscribe to something first\n\n")
 		print()
 		return False
 	else:
@@ -93,7 +104,7 @@ def enlistSubscriptions():
 			i+=1
 		return True
 
-def getSubIndex(message):
+def getSubIndex(message="Choose subscription"):
 	print(message)
 	if enlistSubscriptions():
 		return input("Your choice:")

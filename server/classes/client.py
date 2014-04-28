@@ -145,7 +145,10 @@ class Client():
             return
         patch = jsonpatch.JsonPatch(attributes["changes"])
         pub = publication.Collection.getPublicationByName(attributes['pub_name'])
-        pub.applyPatch(patch)
+        try:
+            pub.applyPatch(patch)
+        except:
+            self.reportBadSyntax("badly formatted JsonPatch")
         self.respondOK(pub.getContentsAsObject(), request_id)
         pub.propagate("update")
 
