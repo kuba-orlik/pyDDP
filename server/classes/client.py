@@ -9,6 +9,12 @@ except:
     sys.exit()
 
 
+class PubNotFoundError(Exception):
+    def __init__(self, value):
+        self.value = value
+    def __str__(self):  
+        return repr(self.value)
+
 class Collection:
     #lista klientów (__init__ konstruktor) 
     clients=[]
@@ -97,7 +103,7 @@ class Client():
             return
         try:
             pub = publication.Collection.getPublicationByName(attributes["pub_name"])
-        except PubNotFoundError:
+        except publication.PubNotFoundError:
             self.respond(404, "error", "publication not found", request_id)
             return
         sub = subscription.Collection.new(self, pub, attributes["id"])

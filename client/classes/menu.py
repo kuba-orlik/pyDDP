@@ -1,3 +1,5 @@
+import subscription
+
 def display():
 	print("Hi, user! Choose one option from the list below:")
 	print("1 - to subcribe a publication")
@@ -11,8 +13,8 @@ def display():
 	menu = input("What do you want to do:")
 	print(menu)
 	if menu == "1":
-		pub_id = input("publication id:")
-		sub(pub_id)
+		pub_name = input("publication name:")
+		subscription.newSub(pub_name)
 	elif menu == "2":
 		pub_id = input("publication id:")
 		unsub(pub_id)
