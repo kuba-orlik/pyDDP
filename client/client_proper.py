@@ -8,6 +8,7 @@ from sys import path
 path.append("classes/")
 
 import api
+import menu
 
 HOST = 'localhost'   
 PORT = 50007         
@@ -17,7 +18,7 @@ try:
 	main_socket.connect((HOST, PORT))
 except ConnectionRefusedError:
 	print("Could not connect to the server. Is it turned on?")
-
+	sys.exit()
 api.use_socket(main_socket)
 
 def listening_loop():
@@ -28,7 +29,7 @@ def listening_loop():
 			req = api.requests_to_send.get(False)
 		except queue.Empty:
 			send=False
-			print("queue empty")
+			#print("queue empty")
 		if send:
 			print("request queue not empty")
 			req_body_str = req.getBodyString()
@@ -45,8 +46,4 @@ def listening_loop():
 listening_thread = threading.Thread(target=listening_loop, args=() )
 listening_thread.start()
 
-to_send = {"verb":"delete_pub", "attributes":{"name":"test234"}}
-print("about to send request")
-response = api.send_request(to_send)
-
-print("main", response)
+menu.display()
