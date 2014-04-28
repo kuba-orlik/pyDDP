@@ -39,3 +39,23 @@ def update(name, patch_to_apply):
 		return 0
 	else:
 		return -100
+
+def replace(name, new_content_str):
+	try:
+		new_content = json.loads(new_content_str)
+	except:
+		return -3
+	req_body = {}
+	req_body["verb"]="replace_pub"
+	req_body["attributes"]={}
+	req_body["attributes"]["pub_name"]=name
+	req_body["attributes"]["new_content"]=new_content
+	response = api.send_request(req_body)
+	res_number = response["res_number"]
+	#print(response)
+	if res_number==404:
+		return -1
+	elif res_number==200:
+		return 0
+	else:
+		return -100

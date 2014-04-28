@@ -39,8 +39,12 @@ def handle_server_response(response):
 		response = response[1:len(response)-1]
 	print(response)
 	response_body = json.loads(response)
-	req_id=response_body["request_id"]
-	req_obj = getSentRequestByID(req_id)
-	if not req_obj==None:
-		req_obj.setServerResponse(response_body)
-		sent_requests.remove(req_obj)
+	if "request_id" in response_body:
+		req_id=response_body["request_id"]
+		req_obj = getSentRequestByID(req_id)
+		if not req_obj==None:
+			req_obj.setServerResponse(response_body)
+			sent_requests.remove(req_obj)
+	else:
+		#handle push
+		return

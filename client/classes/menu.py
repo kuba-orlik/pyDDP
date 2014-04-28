@@ -56,9 +56,17 @@ def display():
 			print("unknown error")
 	elif menu == "5":
 		#replace_pub
-		pub_id = input("publication id:")
-		json = input("json:")
-		replace_pub(pub_id, json)
+		pub_name = input("Publication name:")
+		new_content = input("New json with content of " + pub_name + ":")
+		res = publication.replace(pub_name, new_content)
+		if res==-3:
+			print("\n\n\nincorrect json string")
+		elif res==-1:
+			print("\n\n\npublication", pub_name, "does not exist\n\n\n")
+		elif res==-100:
+			print("\n\n\nunknown error occured\n\n\n")
+		else:
+			print("\n\n\npublication replaced succesfully!\n\n\n")
 	elif menu == "6":
 		#delete_pub
 		pub_id = input("publication id:")
