@@ -79,11 +79,9 @@ class Publication():
                 list.append(sub)
         return list
 
-class PublicationCollection():
-    def __init__(self):
-        self
+class Collection:
 
-    def getPublicationByName(self, name):
+    def getPublicationByName(name):
         try:
             pub= Publication(name)
         except BadJSONSyntaxError:
@@ -93,7 +91,7 @@ class PublicationCollection():
             raise PubNotFoundError("Publication not found")
         return pub
 
-    def nameTaken(self, name):
+    def nameTaken(name):
         try:
             f=open("pubs/"+name+".pub")
         except FileNotFoundError:
@@ -101,11 +99,11 @@ class PublicationCollection():
         f.close()
         return True
 
-    def createPublication(self, name, content):
+    def createPublication(name, content):
         f = open("pubs/" + name + ".pub", "a")
         f.write(content)
         f.close()
         return Publication(name)
 
-    def delete(self, name):
+    def delete(name):
         os.remove("pubs/"+ name +".pub")
