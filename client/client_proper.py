@@ -31,7 +31,7 @@ def listening_loop():
 			send=False
 			#print("queue empty")
 		if send:
-			print("request queue not empty")
+			#print("request queue not empty")
 			req_body_str = req.getBodyString()
 			main_socket.send(bytes(req_body_str, "UTF-8"))
 			api.sent_requests.append(req)
@@ -46,4 +46,5 @@ def listening_loop():
 listening_thread = threading.Thread(target=listening_loop, args=() )
 listening_thread.start()
 
-menu.display()
+while 1:
+	menu.display()

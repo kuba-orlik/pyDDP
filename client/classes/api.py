@@ -21,15 +21,15 @@ def send_request(req_body):
 	requests_to_send.put(req)
 	while req.waiting:
 		time.sleep(0.1)
-	print("about to return from send_request")
+	#print("about to return from send_request")
 	return req.response_obj
 
 def getSentRequestByID(req_id):
 	global sent_requests
 	for req in sent_requests:
-		print(str(req.id), req_id)
+		#print(str(req.id), req_id)
 		if str(req.id)==req_id:
-			print("found!")
+			#print("found!")
 			return req
 	return None
 
