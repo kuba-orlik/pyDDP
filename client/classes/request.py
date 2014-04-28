@@ -16,5 +16,4 @@ class Request():
 	def getBodyString(self):
 		temp_obj = copy.deepcopy(self.body)
 		temp_obj["request_id"] = str(self.id)
-		print("about to send", temp_obj)
 		return json.dumps(temp_obj)
