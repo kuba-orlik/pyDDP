@@ -10,6 +10,14 @@ except:
     sys.exit()
 import os
 
+from sys import path
+path.append("classes/")
+
+import subscription
+import publication
+import client
+
+
 #parsowanie stringu na byte'y
 def prepareString(string):
     return bytes(string, "UTF-8")
@@ -24,191 +32,32 @@ serversocket.bind(('', 50007))
 serversocket.listen(5)
 
 #tablica połączonych (aktualnie aktywnych) socketów, w tej tablicy przechowywujemy zaakceptowane sockety
-connected_sockets=[]
 
 #wywoływana w osobny wątku, w nieblokujący sposób zczytuje informacje od połączonych klientów
 def monitorClients():
     while 1:
         #sprawdzenie czy są połączeni klienci
-        if len(connected_sockets)>0:
+        if len(client.Collection.connected_sockets)>0:
             #zwraca liste odpowiednich socketów
-            ready_to_read, ready_to_write, in_error = select.select(connected_sockets, [], [], 1)
+            ready_to_read, ready_to_write, in_error = select.select(client.Collection.connected_sockets, [], [], 1)
             #pętla wykonuje się dla każdego socketu który jest gotowy do odczytu
             for socket in ready_to_read:
 
-                client = clientCollection.getBySocket(socket)
+                client_temp = client.Collection.getBySocket(socket)
                 error = False
                 try:
                     data = socket.recv(1024)
                 except ConnectionAbortedError:
                     error = True
                 if error or len(data)==0:
-                    connected_sockets.remove(socket)
-                    print("client", client.IDL, "disconnected")
-                    client.unsubAll()
+                    client.Collection.connected_sockets.remove(socket)
+                    print("client_temp", client_temp.IDL, "disconnected")
+                    client_temp.unsubAll()
                     continue
-                client.parseIncomingJSON(data)
+                client_temp.parseIncomingJSON(data)
                 #client.respond(200, "ok", "ok")
 
-
-class PubNotFoundError(Exception):
-    def __init__(self, value):
-        self.value = value
-    def __str__(self):  
-        return repr(self.value)
-
-class PubDamagedError(Exception):
-    def __init__(self, value):
-        self.value = value
-    def __str__(self):
-        return repr(self.value)
-
-class BadJSONSyntaxError(Exception):
-    def __init__(self, value):
-        self.value = value
-    def __str__(self):
-        return repr(self.value)
-
-class Publication():
-    def __init__(self, ID):
-        self.IDL=ID
-        self.file = open('pubs/'+ID+'.pub')
-        #self.content = json.gets(self.file.read())
-        self.content = self.file.read()
-        try:
-            self.parsed_content = json.loads(self.content)
-        except Exception as e:
-            raise BadJSONSyntaxError(e.value)
-        self.last_propagated_content = self.parsed_content
-        self.name="publication_name_placeholder"
-
-    def getContents(self):
-        return self.content
-
-    def getContentsAsObject(self):
-        return json.loads(self.content)
-
-    def applyPatch(self, patch):
-        json_l = json.loads(self.content)
-        print("before patch:", json_l)
-        json_l = patch.apply(json_l)
-        print("after patch: ", json_l)
-        self.setContentByObject(json_l)
-
-    def setContentByObject(self, object):
-        self.content = json.dumps(object)
-        self.setContentString(self.content)
-
-    def __getFilePath(self):
-        return "pubs/" + self.IDL + ".pub"
-
-    def setContentString(self, string):
-        f = open(self.__getFilePath(), "w")
-        f.truncate()
-        f.write(self.content)
-
-    def propagate(self, typeL="update"):
-        print("in propagate")
-        changes = json.loads(jsonpatch.make_patch(self.last_propagated_content, self.getContentsAsObject()).to_string())
-        subs = self.getSubscriptions()
-        print(subs)
-        for sub in subs:
-            sub.sendUpdate(changes, typeL)
-        self.last_propagated_content = self.content
-
-    def getSubscriptions(self):
-        list = []
-        print("all subs:", subscriptionCollection.subscriptions)
-        for sub in subscriptionCollection.subscriptions:
-            if sub.publication.IDL==self.IDL:
-                list.append(sub)
-        return list
-
-class PublicationCollection():
-    def __init__(self):
-        self
-
-    def getPublicationByName(self, name):
-        try:
-            pub= Publication(name)
-        except BadJSONSyntaxError:
-            print('publication content invalid')
-            raise PubDamagedError("Publication content is not valid")
-        except:
-            raise PubNotFoundError("Publication not found")
-        return pub
-
-    def nameTaken(self, name):
-        try:
-            open("pubs/"+name+".pub")
-        except FileNotFoundError:
-            return False
-        return True
-
-    def createPublication(self, name, content):
-        f = open("pubs/" + name + ".pub", "a")
-        f.write(content)
-        f.close()
-        return Publication(name)
-
-    def delete(self, name):
-        os.remove("pubs/"+ name +".pub")
-
-
-class Subscription():
-    def __init__(self, client, publication, IDL):
-        self.client = client
-        self.publication = publication
-        self.IDL=IDL
-
-    def sendUpdate(self, changes, typeL="update"):
-        response = {"verb":"sub_push", "attributes":{"sub_id": self.IDL, "change_type": typeL, "content":changes}}
-        print(response)
-        message = json.dumps(response)
-        print("responding:", response)
-        client.socket.send(bytes(message, "UTF-8"))
-
-
-class SubscriptionCollection():
-    def __init__(self):
-        self.subscriptions = []
-        self.subscriptionsByPub = {}
-
-    def indexSubByPub(self, sub):
-        if not sub.publication.name in self.subscriptionsByPub:
-            self.subscriptionsByPub[sub.publication.name]=[]
-        self.subscriptionsByPub[sub.publication.name].append(sub)
-
-    def getSubsByPubName(self, pub_name):
-        return self.subscriptionsByPub[pub_name]
-
-    def new(self, client, publication, idL):
-        sub = Subscription(client, publication, idL)
-        self.subscriptions.append(sub)
-        self.subscriptionsByPub
-        return sub
-
-    def remove(self, sub):
-        self.subscriptions.remove(sub)
-
 #kolekcja klientów
-class ClientCollection():
-    #lista klientów (__init__ konstruktor) 
-    def __init__(self):
-        self.clients=[]
-        self.total_clients=0
-
-    #dodanie klienta do kolekcji
-    def addClient(self, client):
-        self.clients.append(client)
-        client.IDL=self.total_clients
-        self.total_clients+=1
-        connected_sockets.append(client.socket)
-
-    def getBySocket(self, socket):
-        for client in self.clients:
-            if client.socket==socket:
-                return client
 
 class Validator:
     def attributesPresent(needles, haystack):
@@ -294,7 +143,7 @@ class Client():
         except PubNotFoundError:
             self.respond(404, "error", "publication not found")
             return
-        sub = subscriptionCollection.new(self, pub, attributes["id"])
+        sub = subscription.Collection.new(self, pub, attributes["id"])
         self.subscriptions.append(sub)
         self.respondOK(pub.getContents())
 
@@ -360,16 +209,14 @@ class Client():
     def unsubAll(self):
         for sub in self.subscriptions:
             self.subscriptions.remove(sub)
-            subscriptionCollection.remove(sub)
+            subscription.Collection.remove(sub)
 
 client_monitor_thread = threading.Thread (target=monitorClients, args=() )
 client_monitor_thread.start()
 
-clientCollection = ClientCollection()
-subscriptionCollection = SubscriptionCollection()
-publicationCollection = PublicationCollection()
+publicationCollection = publication.PublicationCollection()
 
 while 1:
     (new_clientSocket, address) =  serversocket.accept()
-    client = Client(new_clientSocket, address)
-    clientCollection.addClient(client)
+    client_new = Client(new_clientSocket, address)
+    client.Collection.addClient(client_new)
