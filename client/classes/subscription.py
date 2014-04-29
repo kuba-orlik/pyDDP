@@ -51,7 +51,10 @@ class Subscription():
 
 	def display(self):
 		self.is_displayed = True
-		os.system('CLS')
+		if(os.name=="nt"):
+			os.system("CLS")
+		else:
+			os.system("clear")
 		print(self.pub_content)
 		
 	def applyPatch(self, patch):
