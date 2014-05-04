@@ -1,4 +1,3 @@
-##test
 import socket
 import select
 import threading
@@ -11,14 +10,15 @@ path.append("classes/")
 import api
 import menu
 
-HOST = 'localhost'   
-PORT = 50007         
-#main_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+HOST = '127.0.0.1'   
+
+print ("Type port number");
+PORT = int(input())
+        
 main_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 #main_socket.setblocking(0)
 try:
-	#main_socket.connect((HOST, PORT))
-	main_socket.connect(("150.254.68.108", PORT))
+	main_socket.connect((HOST, PORT))
 except ConnectionRefusedError:
 	print("Could not connect to the server. Is it turned on?")
 	sys.exit()

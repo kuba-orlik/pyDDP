@@ -10,11 +10,20 @@ path.append("classes/")
 
 import client
 
+print ("Type IP address")
+#HOST = '127.0.0.1'
+#test
+HOST = input()
+
+print ("Type port number");
+PORT = int(input())
+
+
 #create an INET, STREAMing socket
 serversocket = socket.socket(
     socket.AF_INET, socket.SOCK_STREAM) #SOCK_STREAM -> TCP
 #bindowanie socketu na localhost:50007
-serversocket.bind(('', 50007))
+serversocket.bind((HOST, PORT))
 #ten socket defaultowo działa w sposób blokujący
 #włącz nasłuchiwanie na socketcie serwerowym, (5) 0..5 maksymalna ilość socketów, które przyszły a nie dostały accept'a
 serversocket.listen(5)
