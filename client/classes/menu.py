@@ -19,8 +19,8 @@ def display():
 		try:
 			subscription.newSub(pub_name)
 		except:
-			return
 			print("Publication does not exist.")
+			return
 		return
 	elif menu == "2":
 		#unsub

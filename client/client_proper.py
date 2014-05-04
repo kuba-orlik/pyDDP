@@ -12,10 +12,12 @@ import menu
 
 HOST = 'localhost'   
 PORT = 50007         
+#main_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 main_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 #main_socket.setblocking(0)
 try:
-	main_socket.connect((HOST, PORT))
+	#main_socket.connect((HOST, PORT))
+	main_socket.connect(("150.254.68.108", PORT))
 except ConnectionRefusedError:
 	print("Could not connect to the server. Is it turned on?")
 	sys.exit()
