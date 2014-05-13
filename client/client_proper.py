@@ -10,9 +10,10 @@ path.append("classes/")
 import api
 import menu
 
-HOST = '127.0.0.1'   
+#HOST = '127.0.0.1'   
 
-print ("Type port number");
+HOST = input("IP Addresss:")
+print ("Type port number")
 PORT = int(input())
         
 main_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

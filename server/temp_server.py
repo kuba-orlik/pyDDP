@@ -10,10 +10,10 @@ path.append("classes/")
 
 import client
 
-print ("Type IP address")
-#HOST = '127.0.0.1'
+
+HOST = '127.0.0.1'
 #test
-HOST = input()
+#HOST = input()
 
 print ("Type port number");
 PORT = int(input())
