@@ -11,7 +11,7 @@ path.append("classes/")
 import client
 
 
-HOST = '127.0.0.1'
+HOST = ''
 #test
 #HOST = input()
 
