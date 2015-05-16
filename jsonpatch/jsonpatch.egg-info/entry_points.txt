@@ -1,0 +1,4 @@
+[console_scripts]
+jsondiff = jsondiff:main
+jsonpatch = jsonpatch:main
+
